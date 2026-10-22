@@ -1,0 +1,446 @@
+:root {
+  --bg: #fff;
+  --ink: #111;
+  --muted: #8a8780;
+  --look-h: min(76svh, 940px);
+  --look-gap: clamp(8px, 2vw, 40px);
+  --bar-pad: clamp(16px, 2.4vw, 32px);
+  --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Header / footer --------------------------------------------------- */
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--bar-pad);
+  position: relative;
+  z-index: 2;
+}
+
+.wordmark {
+  position: relative;
+  display: block;
+}
+
+.wordmark img {
+  display: block;
+  height: clamp(14px, 1.6vw, 20px);
+  width: auto;
+  transition: opacity 0.5s ease;
+}
+
+/* White version, cross-faded in over the detail grid. */
+.wordmark .wordmark__white {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.season {
+  transition: color 0.5s ease;
+}
+
+/* --- Carousel ---------------------------------------------------------- */
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.track {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  will-change: transform;
+}
+
+.set {
+  display: flex;
+  flex: none;
+}
+
+.look {
+  position: relative;
+  flex: none;
+  margin: 0;
+  padding-right: var(--look-gap);
+  cursor: pointer;
+  outline: none;
+  transition: opacity 0.6s ease;
+}
+
+.look img {
+  display: block;
+  height: var(--look-h);
+  width: auto;
+  user-select: none;
+}
+
+.track.has-active .look:not(.is-active) {
+  opacity: 0.28;
+}
+
+/* --- Detail grid (desktop hover) ---------------------------------------
+   Full height, beneath the track and the header/footer: the hovered look
+   stays on top while the other looks fade out completely, leaving the grid
+   visible around it. The look's info moves to the right column. */
+
+.details,
+.about__look,
+.selected__info {
+  display: none;
+}
+
+/* Only a wrapper on desktop; on mobile it becomes the panel below the
+   carousel (see the mobile section). */
+.selected {
+  display: contents;
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 901px) {
+  .details {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 80vw;
+    display: grid;
+    /* Fixed frame: the first image fills the left half at full height and
+       the right column is always split into two rows. */
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.5s ease,
+      visibility 0s 0.5s;
+  }
+
+  .details img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+    background: #f0f0f0;
+    object-position: center top;
+  }
+
+  .details img:first-child {
+    grid-row: 1 / -1;
+  }
+
+  .details img[hidden] {
+    display: none;
+  }
+
+  /* 5: each right row holds two images. 3: one per row.
+     2: top-right only. 1: left only. */
+  .details[data-count='5'] {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .details.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease;
+  }
+
+  .track.has-active .look:not(.is-active) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .look__info {
+    display: none;
+  }
+
+  .about.shows-look .about__text {
+    display: none;
+  }
+
+  .about.shows-look .about__look {
+    display: block;
+    animation: fade-in 0.4s ease;
+  }
+
+  body.grid-open .wordmark img {
+    opacity: 0;
+  }
+
+  body.grid-open .wordmark .wordmark__white {
+    opacity: 1;
+  }
+
+  body.grid-open .season {
+    color: #fff;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* --- Info panel -------------------------------------------------------- */
+
+.look__info {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: max-content;
+  max-width: 240px;
+  padding: 14px 16px;
+  translate: calc(-50% - var(--look-gap) / 2) 8px;
+  background: rgb(255 255 255 / 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 10px;
+  line-height: 1.55;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.45s ease,
+    translate 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.look.is-active .look__info {
+  opacity: 1;
+  translate: calc(-50% - var(--look-gap) / 2) 0;
+}
+
+.look__number {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.look__info ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #444;
+}
+
+/* --- About ------------------------------------------------------------- */
+
+.about {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 20vw;
+  display: flex;
+  flex-direction: column;
+  padding: var(--bar-pad);
+  /* Aligns the first line with the logo. */
+  padding-top: calc(var(--bar-pad) - 2px);
+  overflow-y: auto;
+  background: var(--bg);
+  font-size: 11px;
+  line-height: 1.5;
+  text-transform: none;
+  hyphens: manual;
+  text-wrap: pretty;
+}
+
+.about p {
+  margin: 0 0 1em;
+  color: #444;
+}
+
+.about__source {
+  margin-top: auto;
+  padding-top: 2em;
+  align-self: flex-end;
+  color: #444;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.about__source-url {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.about__source:hover {
+  color: var(--ink);
+}
+
+.about .about__lead {
+  margin-bottom: 1.5em;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.about__look ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #444;
+}
+
+/* --- Mobile ------------------------------------------------------------
+   The looks fill the space between header and footer, with the About text
+   overlaid on their top-left corner. Tapping a look opens its info and
+   detail images below the carousel, and the page scrolls down to them. */
+
+@media (max-width: 900px) {
+  :root {
+    /* Logo height plus the bar's vertical padding. */
+    --bar-h: calc(14px + 2 * var(--bar-pad));
+    --look-h: calc(100svh - 2 * var(--bar-h));
+  }
+
+  body {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  .stage {
+    height: var(--look-h);
+  }
+
+  .about {
+    position: absolute;
+    top: var(--bar-h);
+    right: auto;
+    bottom: auto;
+    left: 0;
+    width: 70%;
+    padding: var(--bar-pad);
+    overflow: visible;
+    background: rgb(255 255 255 / 0.86);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    /* Taps go through to the looks underneath. */
+    pointer-events: none;
+    transition:
+      opacity 0.4s ease,
+      visibility 0s 0s;
+  }
+
+  .about__source {
+    pointer-events: auto;
+  }
+
+  /* Out of the way while a look is open. */
+  body.grid-open .about {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.4s ease,
+      visibility 0s 0.4s;
+  }
+
+  /* The info moves below the carousel. */
+  .look__info {
+    display: none;
+  }
+
+  .selected {
+    display: none;
+    padding: var(--bar-pad) var(--bar-pad) 0;
+  }
+
+  body.grid-open .selected {
+    display: block;
+    animation: fade-in 0.4s ease;
+  }
+
+  .selected__info {
+    display: block;
+    margin-bottom: var(--bar-pad);
+    line-height: 1.5;
+    text-transform: none;
+  }
+
+  .selected__info p {
+    margin: 0 0 1em;
+    font-weight: 700;
+  }
+
+  .selected__info ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #444;
+  }
+
+  .details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .details img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    object-position: center top;
+    background: #f0f0f0;
+  }
+
+  /* First image full width; with two images the second one too. */
+  .details img:first-child,
+  .details[data-count='2'] img:nth-child(2) {
+    grid-column: 1 / -1;
+    aspect-ratio: 4 / 5;
+  }
+
+  .details img[hidden] {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .about {
+    font-size: 10px;
+  }
+}
+
+/* --- Utilities --------------------------------------------------------- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

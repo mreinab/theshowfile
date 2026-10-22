@@ -1,0 +1,4 @@
+node_modules
+dist
+public/looks
+src/looks.manifest.json
