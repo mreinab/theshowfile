@@ -342,11 +342,12 @@ body {
     bottom: auto;
     left: 0;
     width: 70%;
-    padding: var(--bar-pad);
+    /* Offsets the highlight's side padding so the text lines up with the logo. */
+    padding: var(--bar-pad) var(--bar-pad) var(--bar-pad) calc(var(--bar-pad) - 0.4em);
     overflow: visible;
-    background: rgb(255 255 255 / 0.86);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: none;
+    /* Extra leading leaves a gap between the highlighted lines. */
+    line-height: 2;
     /* Taps go through to the looks underneath. */
     pointer-events: none;
     transition:
@@ -354,7 +355,20 @@ body {
       visibility 0s 0s;
   }
 
+  /* Each line gets its own highlight. */
+  .about p > span,
   .about__source {
+    padding: 0.25em 0.4em;
+    background: var(--bg);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  .about__source {
+    align-self: flex-start;
+    margin-top: 1em;
+    padding-top: 0.25em;
+    line-height: 1.5;
     pointer-events: auto;
   }
 
